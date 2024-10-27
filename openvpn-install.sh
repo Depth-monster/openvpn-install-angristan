@@ -273,7 +273,7 @@ function installQuestions() {
 	done
 	echo ""
 	echo "What port do you want OpenVPN to listen to?"
-	echo "   1) Default: 1194"
+	echo "   1) Default: 443"
 	echo "   2) Custom"
 	echo "   3) Random [49152-65535]"
 	until [[ $PORT_CHOICE =~ ^[1-3]$ ]]; do
@@ -281,11 +281,11 @@ function installQuestions() {
 	done
 	case $PORT_CHOICE in
 	1)
-		PORT="1194"
+		PORT="443"
 		;;
 	2)
 		until [[ $PORT =~ ^[0-9]+$ ]] && [ "$PORT" -ge 1 ] && [ "$PORT" -le 65535 ]; do
-			read -rp "Custom port [1-65535]: " -e -i 1194 PORT
+			read -rp "Custom port [1-65535]: " -e -i 443 PORT
 		done
 		;;
 	3)
@@ -326,7 +326,7 @@ function installQuestions() {
 	echo "   12) NextDNS (Anycast: worldwide)"
 	echo "   13) Custom"
 	until [[ $DNS =~ ^[0-9]+$ ]] && [ "$DNS" -ge 1 ] && [ "$DNS" -le 13 ]; do
-		read -rp "DNS [1-12]: " -e -i 11 DNS
+		read -rp "DNS [1-12]: " -e -i 9 DNS
 		if [[ $DNS == 2 ]] && [[ -e /etc/unbound/unbound.conf ]]; then
 			echo ""
 			echo "Unbound is already installed."
