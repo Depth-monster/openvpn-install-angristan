@@ -1158,6 +1158,87 @@ function newClient() {
 	exit 0
 }
 
+function newMultipleClients() {
+    echo ""
+    echo "How many clients do you want to create?"
+    read -rp "Number of clients: " CLIENT_COUNT
+
+    if ! [[ $CLIENT_COUNT =~ ^[0-9]+$ ]]; then
+        echo "Invalid input. Please enter a number."
+        return
+    fi
+
+    for ((i = 1; i <= CLIENT_COUNT; i++)); do
+        echo ""
+        echo "Enter a name for client $i:"
+        until [[ $CLIENT =~ ^[a-zA-Z0-9_-]+$ ]]; do
+            read -rp "Client name: " -e CLIENT
+        done
+
+        echo ""
+        echo "Do you want to protect the configuration file with a password?"
+        echo "(e.g. encrypt the private key with a password)"
+        echo "   1) Add a passwordless client"
+        echo "   2) Use a password for the client"
+        
+        until [[ $PASS =~ ^[1-2]$ ]]; do
+            read -rp "Select an option [1-2]: " -e -i 1 PASS
+        done
+
+        CLIENTEXISTS=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep -c -E "/CN=$CLIENT\$")
+        if [[ $CLIENTEXISTS == '1' ]]; then
+            echo ""
+            echo "The specified client CN was already found in easy-rsa, please choose another name."
+            i=$((i-1)) # Reduce counter to retry
+            CLIENT=""
+        else
+            case $PASS in
+            1)
+                EASYRSA_CERT_EXPIRE=3650 ./easyrsa --batch build-client-full "$CLIENT" nopass
+                ;;
+            2)
+                echo "⚠️ You will be asked for the client password below ⚠️"
+                EASYRSA_CERT_EXPIRE=3650 ./easyrsa --batch build-client-full "$CLIENT"
+                ;;
+            esac
+
+            # Генерация OVPN файла для клиента
+            cp /etc/openvpn/client-template.txt "$homeDir/$CLIENT.ovpn"
+            {
+                echo "<ca>"
+                cat "/etc/openvpn/easy-rsa/pki/ca.crt"
+                echo "</ca>"
+
+                echo "<cert>"
+                awk '/BEGIN/,/END CERTIFICATE/' "/etc/openvpn/easy-rsa/pki/issued/$CLIENT.crt"
+                echo "</cert>"
+
+                echo "<key>"
+                cat "/etc/openvpn/easy-rsa/pki/private/$CLIENT.key"
+                echo "</key>"
+
+                if grep -qs "^tls-crypt" /etc/openvpn/server.conf; then
+                    echo "<tls-crypt>"
+                    cat /etc/openvpn/tls-crypt.key
+                    echo "</tls-crypt>"
+                elif grep -qs "^tls-auth" /etc/openvpn/server.conf; then
+                    echo "key-direction 1"
+                    echo "<tls-auth>"
+                    cat /etc/openvpn/tls-auth.key
+                    echo "</tls-auth>"
+                fi
+            } >>"$homeDir/$CLIENT.ovpn"
+
+            echo "Client $CLIENT added."
+            CLIENT="" # Reset the CLIENT variable for next iteration
+        fi
+    done
+
+    echo ""
+    echo "All clients created successfully."
+}
+
+
 function revokeClient() {
 	NUMBEROFCLIENTS=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep -c "^V")
 	if [[ $NUMBEROFCLIENTS == '0' ]]; then
@@ -1312,10 +1393,11 @@ function manageMenu() {
 	echo ""
 	echo "What do you want to do?"
 	echo "   1) Add a new user"
-	echo "   2) Revoke existing user"
-	echo "   3) Remove OpenVPN"
-	echo "   4) Exit"
-	until [[ $MENU_OPTION =~ ^[1-4]$ ]]; do
+ 	echo "   2) Add multiple new users"
+	echo "   3) Revoke existing user"
+	echo "   4) Remove OpenVPN"
+	echo "   5) Exit"
+	until [[ $MENU_OPTION =~ ^[1-5]$ ]]; do
 		read -rp "Select an option [1-4]: " MENU_OPTION
 	done
 
@@ -1324,12 +1406,15 @@ function manageMenu() {
 		newClient
 		;;
 	2)
+ 		newMultipleClients
+		;;
+ 	3)
 		revokeClient
 		;;
-	3)
+	4)
 		removeOpenVPN
 		;;
-	4)
+	5)
 		exit 0
 		;;
 	esac
