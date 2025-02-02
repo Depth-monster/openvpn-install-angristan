@@ -900,7 +900,7 @@ tls-cipher $CC_CIPHER
 client-config-dir /etc/openvpn/ccd
 status /var/log/openvpn/status.log
 verb 3
-scramble xormask 5" >>/etc/openvpn/server.conf
+scramble xormask rforu'ZY||z@U%zDvt;)N5>fy3AURVvL" >>/etc/openvpn/server.conf
 
 	# Create client-config-dir dir
 	mkdir -p /etc/openvpn/ccd
@@ -1048,7 +1048,7 @@ tls-cipher $CC_CIPHER
 ignore-unknown-option block-outside-dns
 setenv opt block-outside-dns # Prevent Windows 10 DNS leak
 verb 3
-scramble xormask 5" >>/etc/openvpn/client-template.txt
+scramble xormask rforu'ZY||z@U%zDvt;)N5>fy3AURVvL" >>/etc/openvpn/client-template.txt
 
 	if [[ $COMPRESSION_ENABLED == "y" ]]; then
 		echo "compress $COMPRESSION_ALG" >>/etc/openvpn/client-template.txt
