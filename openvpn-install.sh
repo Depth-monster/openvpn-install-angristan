@@ -1048,7 +1048,7 @@ tls-cipher $CC_CIPHER
 ignore-unknown-option block-outside-dns
 setenv opt block-outside-dns # Prevent Windows 10 DNS leak
 verb 3
-scramble xormask rforu'ZY||z@U%zDvt;)N5>fy3AURVvL" >>/etc/openvpn/client-template.txt
+scramble xormask djakdy@#45910" >>/etc/openvpn/client-template.txt
 
 	if [[ $COMPRESSION_ENABLED == "y" ]]; then
 		echo "compress $COMPRESSION_ALG" >>/etc/openvpn/client-template.txt
