@@ -169,7 +169,7 @@ prefetch: yes' >>/etc/unbound/unbound.conf
 		fi
 
 		# IPv6 DNS for all OS
-		if [[ $IPV6_SUPPORT == 'y' ]]; then
+		if [[ $IPV6_SUPPORT == 'n' ]]; then
 			echo 'interface: fd42:42:42:42::1
 access-control: fd42:42:42:42::/112 allow' >>/etc/unbound/unbound.conf
 		fi
@@ -206,7 +206,7 @@ private-address: fd00::/8
 private-address: fe80::/10
 private-address: 127.0.0.0/8
 private-address: ::ffff:0:0/96' >/etc/unbound/openvpn.conf
-		if [[ $IPV6_SUPPORT == 'y' ]]; then
+		if [[ $IPV6_SUPPORT == 'n' ]]; then
 			echo 'interface: fd42:42:42:42::1
 access-control: fd42:42:42:42::/112 allow' >>/etc/unbound/openvpn.conf
 		fi
